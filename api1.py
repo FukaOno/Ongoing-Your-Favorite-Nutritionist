@@ -94,11 +94,60 @@ def get_nutrients():
                         print(f"Could not convert value to float: {value}")
                         nutrients_data[ingredient][nutrient] = 0.0
     
+        store_nutrients_data(nutrients_data)
+
+        return jsonify(nutrients_data)
+    
     except Exception as e:
         print(f"Error processing file: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-    return jsonify(nutrients_data)
+def store_nutrients_data(nutrients_data):
+    try:
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        for ingredient, nutrients in nutrients_data.items():
+            cursor.execute("""
+                INSERT IGNORE INTO ingredients(ingredient_name)
+                VALUES (%s)
+        """, (ingredient,))
+
+        cursor.execute("""
+            SELECT id FROM ingredients WHERE ingredient_name = %s""", (ingredient,))
+                ingredient_id = cursor.fetchone()[0]
+
+        cursor.execute("""
+            INSERT INTO nutrient_values
+            (ingredient_id, protein, total_fat, carbohydrate, energy)
+            VALUES (%s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+            protein = VALUES(protein),
+            fat = VALUES(total_fat),
+            carbohydrate = VALUES(carbohydrate),
+            energy = VALUES(energy)
+        """, (
+            ingredient_id,
+            nutrients.get('Protein', 0.0),
+            nutrients.get('Total Fat', 0.0),
+            nutrients.get('Carbohydrate', 0.0),
+            nutrients.get('Energy', 0.0)
+            ))
+
+        connection.commit()
+        print("Data successfully stored in database")
+
+        except Error as e:
+            print(f"Error storing data: {e}")
+            connection.rollback()
+        finally:
+            if "connection" in locals() and connection_is_connected():
+                cursor.close()
+                connection.close()
+
+@app.route('/api/nutrients/db', methods=['GET'])
+def get_nutrients_from_db():
+    #continue from here
 
 if __name__ == '__main__':
     app.run(debug=True)
