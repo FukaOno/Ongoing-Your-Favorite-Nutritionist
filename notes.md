@@ -33,17 +33,9 @@ https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nut
 4 excel sheets-> 11,848 Foods  
   -> convert into csv✅-> Turn into an endpoint (able to query through HTTP) by parse with python✅-> store in DB(connect MySQL)
 
-# Meal Plan
-
-- Create a balanced meal plan to fill the identified gaps 
-   Edamam Recipe API->https://developer.edamam.com/edamam-recipe-api-> its not free now
-   
-
 - generate meal plan templates 
    spoonacular API-> https://www.postman.com/spoonacular-api/spoonacular-api/request/m1148g0/search-recipes 
 
-- Set up API calls to fetch nutritional information
-- Parse and process API responses in Python
 
 
 *Use tools like Postman or Python's unittest to validate your API and database logic.*
