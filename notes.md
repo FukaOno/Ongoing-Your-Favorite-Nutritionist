@@ -36,11 +36,6 @@ https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nut
 - generate meal plan templates 
    spoonacular API-> https://www.postman.com/spoonacular-api/spoonacular-api/request/m1148g0/search-recipes 
 
-
-
-*Use tools like Postman or Python's unittest to validate your API and database logic.*
-
-
 # -- Frontend -- HTML, CSS, JavaScript
 Allow users to input their meals from the previous day and dietary preferences.
 
