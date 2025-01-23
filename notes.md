@@ -31,7 +31,7 @@ https://www.myfitnesspal.com/ja/food/diary to calculate
 - Excel Data from Food and Nutrient Database for Dietary Studies (FNDDS)
 https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/fndds-download-databases/ 
 4 excel sheets-> 11,848 Foods  
-  -> convert into csv✅-> Turn into an endpoint (able to query through HTTP) by parse with python✅-> store in DB(connect MySQL)
+  -> convert into csv(2021-2023)✅, (2019-2020)✅,(2017-2018)✅, (2015-2016)✅ -> Data Cleaning✅⭐️ -> Turn into an endpoint (able to query through HTTP) by parse with python✅-> store in DB(connect MySQL)
 
 - generate meal plan templates 
    spoonacular API-> https://www.postman.com/spoonacular-api/spoonacular-api/request/m1148g0/search-recipes 
