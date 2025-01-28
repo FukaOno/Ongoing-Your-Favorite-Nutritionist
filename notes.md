@@ -7,15 +7,13 @@ Analyze user input to identify nutritional gaps.
 
 # Database-> MySQL-> storing meal data and nutritional info
 +The previous day's calories, fat, carbs, protein calculator-> now use the outside url
-https://www.myfitnesspal.com/ja/food/diary to calculate 
--> also get the target amount by this website
+https://www.myfitnesspal.com/ja/food/diary to get the target amount by this website
+-> (Eventually do with web scrape or API)
 -> save that data in MySQL database for tracking data
 
-- Create a SQL schema for storing two tables -> one day nutritional data (per category) and target amount(per day)✅
+- Create a SQL schema for storing tables (2015-2016),(2017-2018), (2019-2020), (2021-2023) -> nutrition data for specific food⭐️
 - Focus on carbs, protein, fat (macronutrients)
-- for one day nutritional data-> the id link to three category✅
-- Add sample data to test queries✅
-- calculate gaps with SQL(Make total_calories column...-> total - target= gap)✅
+- calculate gaps with target nutritions (calories, fat, carbs, protein)
 
 
 # Nutrition DataBase
