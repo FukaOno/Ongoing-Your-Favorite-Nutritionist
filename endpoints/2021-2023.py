@@ -51,7 +51,7 @@ def db_init():
 def get_nutrients():
 
     #Specific nutrients value that I am looking for
-    nutrients_needed = ["Protein", "Total Fat", "Carbohydrate", "Energy"]
+    nutrients_needed = ["Protein", "Total Fat", "Carbohydrate", "Energy", "Vitamin C", "Vitamin D", "Vitamin E"]
     nutrients_data = {}
 
     try:
