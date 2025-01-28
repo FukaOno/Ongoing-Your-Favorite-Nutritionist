@@ -9,5 +9,4 @@ db_config= {
     "user": "root", 
     "password": "fuka1010",
     "database": "mealplan"
-
 }
