@@ -1,30 +1,51 @@
 import os
 import csv
+from datetime import datetime
 import mysql.connector
 from mysql.connector import Error
 
-db_config = {
-    "database" = "mealplan",
-    "password" = "fuka1010",
-    "user" = "root",
-    "host" = "localhost"
-    ""
-}
+db_config = mysql.connector.connect(
+    database = "mealplan",
+    password = "fuka1010",
+    user = "root",
+    host = "localhost"
+)
 
-def create_connection():
-    return mysql.connector.connect(
-        host = db_config["host"],
-        database = db_config["database"],
-        user = db_config["user"],
-        host = db_config["host"],
-        charset = 'utf8mb4', # 4 bytes(32 bits) in each character
-        collation = 'utf8mb4_unicode_ci' #a set of rules that govern how data is sorted and compared in a database
-    )
+cursor = db_config.cursor()
 
-def parse_csv(file_name):
-    script_direction = os.path.dirname(os.path.abspath(__file__))  # retrive the absolute direct path of this python file
-    file_path = os.path.join(script_direction, file_name)
+def insert_food_groups():
+    with open("cnf-fcen-csv/foodgroup.csv", "r", encoding="latin-1") as fobj:
+        csvreader = csv.reader(fobj)
+        next(csvreader) #skip header row
 
+        for row in csvreader:
+            food_group_id = int(row[0].strip()) if row[0].strip() else None
+            # if len(row[0])>0:
+                #food_group_id =row[0].strip()
+            #else:
+                #food_group_id =None
+            food_group_code = row[1].strip() 
+            food_group_name = row[2].strip()
+            food_group_name_f = row[3].strip()
 
+            sql ="""
+            INSERT INTO FoodGroups
+            (FoodGroupID, FoodGroupCode, FoodGroupName, FoodGroupNameF)
+            VALUES (%s, %s, %s, %s)
+            """
+
+            values = (
+                food_group_id,
+                food_group_code,
+                food_group_name,
+                food_group_name_f
+            )
+
+            cursor.execute(sql, values)
+
+    db_config.commit()
+    print("FoodGroups data inserted successfully")
+
+insert_food_groups()
 
 
