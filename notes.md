@@ -1,27 +1,17 @@
 A project that generates personalized one day meal plan based on users' previous meals to ensure a balanced diet
 
-# Functionality and notes
-
 # -- Backend -- 
-Analyze user input to identify nutritional gaps.
-
 # Database-> MySQL-> Nutritions DB
-1. The previous day's calories, fat, carbs, protein calculator
-- Create a SQL schema for storing tables (2015-2016),(2017-2018), (2019-2020), (2021-2023) -> nutrition data for specific food⭐️
-- Focus on carbs, protein, fat (macronutrients)
-
-- Automate the process of getting accurate nutritional data for specific food items
-  USDA FoodData Central API-> https://fdc.nal.usda.gov/api-guide
-   -> Food Details endpoint, which returns details on a particular food
-   -> ❌couldnt get the foodID
-
-- Web scrape 10,0000+ items  Python and bs4(Beautiful Soup 4), to populate Database with accurate and relevant food nutrient information
-   -> ❌no good web only for nutrition data(usually need to add the ingredients)
-
-- Excel Data from Food and Nutrient Database for Dietary Studies (FNDDS)
-https://www.ars.usda.gov/northeast-area/beltsville-md-bhnrc/beltsville-human-nutrition-research-center/food-surveys-research-group/docs/fndds-download-databases/ 
-4 excel sheets-> 11,848 Foods  
-  -> convert into csv(2021-2023)✅, (2019-2020)✅,(2017-2018)✅, (2015-2016)✅ -> Data Cleaning✅⭐️ -> Turn into an endpoint (able to query through HTTP) by parse with python✅-> store in DB(connect MySQL)
+1. Nutrition Amount for each ingredients/foods
+- CNF Data/USDA https://www.canada.ca/en/health-canada/services/food-nutrition/healthy-eating/nutrient-data/canadian-nutrient-file-compilation-canadian-food-composition-data-database-structure.html 
+ - Food Name.csv (FoodID, FoodSourceID)
+ - Measure Name.csv(MeasureID)
+ - Conversion Factor.csv (MeasureID & Food ID)
+ - Food Source.csv
+ - Nutrient Name.csv(NutrientsID)
+ - Nutrient Amount.csv
+ - Nutrient Source.csv
+- Turn into an endpoint (able to query through HTTP) by parse with python✅-> store in DB(connect MySQL)
 
 - generate meal plan templates 
    spoonacular API-> https://www.postman.com/spoonacular-api/spoonacular-api/request/m1148g0/search-recipes 
