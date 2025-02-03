@@ -85,20 +85,22 @@ def insert_food_source():
         print(f"Error: {e}")
         db_config.rollback()
 
-insert_food_source()
+# insert_food_source()
 
-# def insert_food_name():
-#     with open("cnf-fcen-csv/foodname.csv", "r", encode = "latin-1") as foodnamefile:
-#         readcsv= csv.reader(foodnamefile)
-#         next(readcsv)
+def insert_food_name():
+    with open("cnf-fcen-csv/foodname.csv", "r", encode = "latin-1") as foodnamefile:
+        readcsv= csv.reader(foodnamefile)
+        next(readcsv)
 
-#         for row in readcsv:
-#             food_id= int(row[0].strip()) if row[0].strip() else None
-#             food_code = row[1].strip
-#             food_group_id = row[2].strip
-#             food_source
+        for row in readcsv:
+            food_id= int(row[0].strip()) if row[0].strip() else None
+            food_code = row[1].strip
+            food_group_id = row[2].strip
+            food_source
 
-#         sql = """
-#         INSERT DATA 
+        sql = """
+        INSERT DATA 
         
-#         """
+        """
+
+#  continue from here
