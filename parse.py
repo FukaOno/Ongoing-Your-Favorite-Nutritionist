@@ -53,7 +53,7 @@ def insert_food_groups():
 def insert_food_source():
     try:
         cursor.execute("SET FOREIGN_KEY_CHECKS = 0")  # Disable checks
-        cursor.execute("TRUNCATE TABLE FoodSources")
+        cursor.execute("TRUNCATE TABLE FoodSources")  #Delete the existing vdata in the table
         cursor.execute("SET FOREIGN_KEY_CHECKS = 1")  
         with open("cnf-fcen-csv/FOOD SOURCE.csv", "r", encoding = "ISO-8859-1") as foodsourcefile:
             read_csv= csv.reader(foodsourcefile)
@@ -87,20 +87,85 @@ def insert_food_source():
 
 # insert_food_source()
 
-def insert_food_name():
-    with open("cnf-fcen-csv/foodname.csv", "r", encode = "latin-1") as foodnamefile:
-        readcsv= csv.reader(foodnamefile)
-        next(readcsv)
+def insert_foods():
+    try:
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")  # Disable checks
+        cursor.execute("TRUNCATE TABLE Foods")  #Delete the existing vdata in the table
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")  
+        try:
+            with open("cnf-fcen-csv/Foodname.csv", "r", encoding="ISO-8859-1") as foodfile:
+                csv_reader = csv.reader(foodfile)
+                next(csv_reader)  # Skip header
 
-        for row in readcsv:
-            food_id= int(row[0].strip()) if row[0].strip() else None
-            food_code = row[1].strip
-            food_group_id = row[2].strip
-            food_source
+                row_count = 0
+                success_count = 0
+                for row in csv_reader:
+                    row_count += 1
+                    try:
+                        # Pad missing columns
+                        row += [''] * (10 - len(row))
 
-        sql = """
-        INSERT DATA 
-        
-        """
+                        # Parse data
+                        food_id = int(row[0].strip()) if row[0].strip() else None
+                        food_code = row[1].strip()
+                        food_group_id = int(row[2].strip()) if row[2].strip() else None
+                        food_source_id = int(row[3].strip()) if row[3].strip() else None
+                        food_description = row[4].strip()
+                        food_description_f = row[5].strip()
 
-#  continue from here
+                        # Handle dates
+                        try:
+                            food_date_entry = datetime.strptime(row[6].strip(), "%Y-%m-%d").date()
+                        except:
+                            food_date_entry = None
+
+                        food_date_pub = datetime.strptime(row[7].strip(), "%Y-%m-%d").date() if row[7].strip() else None
+                        country_code = row[8].strip()
+                        scientific_name = row[9].strip()
+
+                        # Validate foreign keys
+                        cursor.execute("SELECT FoodGroupID FROM FoodGroups WHERE FoodGroupID = %s", (food_group_id,))
+                        if not cursor.fetchone():
+                            print(f"Skipping row {row_count}: Invalid FoodGroupID {food_group_id}")
+                            continue
+
+                        # Insert into Foods
+                        sql = """
+                        INSERT INTO Foods 
+                        (FoodID, FoodCode, FoodGroupID, FoodSourceID, FoodDescription, 
+                        FoodDescriptionF, FoodDateOfEntry, FoodDateOfPublication, CountryCode, ScientificName)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        """
+                        values = (
+                            food_id,
+                            food_code,
+                            food_group_id,
+                            food_source_id,
+                            food_description,
+                            food_description_f,
+                            food_date_entry,
+                            food_date_pub,
+                            country_code,
+                            scientific_name
+                        )
+                        cursor.execute(sql, values)
+                        success_count += 1
+
+                    except Exception as e:
+                        print(f"Error in row {row_count}: {e}")
+                        continue
+
+                db_config.commit()
+                print(f"Successfully inserted {success_count}/{row_count} rows!")
+
+        except Exception as e:
+            print(f"Fatal error: {e}")
+            db_config.rollback()
+
+    except Exception as e:
+        print(f"Error: {e}")
+        db_config.rollback()
+
+insert_foods()
+
+#need to fix since there are many data that could not moved
