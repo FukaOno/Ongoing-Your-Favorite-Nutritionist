@@ -79,8 +79,9 @@ def insert_food_source():
                 )
                 cursor.execute(sql, values)
 
-            db_config.commit()
-            print("Inserted Food Source!")
+        db_config.commit()
+        print("Inserted Food Source!")
+
     except Exception as e:
         print(f"Error: {e}")
         db_config.rollback()
@@ -155,8 +156,8 @@ def insert_foods():
                         print(f"Error in row {row_count}: {e}")
                         continue
 
-                db_config.commit()
-                print(f"Successfully inserted {success_count}/{row_count} rows!")
+                    db_config.commit()
+                    print(f"Successfully inserted {success_count}/{row_count} rows!")
 
         except Exception as e:
             print(f"Fatal error: {e}")
@@ -171,36 +172,44 @@ def insert_foods():
 #need to fix since there are many data that could not moved
 
 def insert_measure_name():
-    with open("cnf-fcen-csv/MEASURE NAME.csv", "r", encoding="ISO-8859-1") as fobj:
-        csvreader = csv.reader(fobj)
-        next(csvreader) #skip header row
+    try:
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
+        cursor.execute("TRUNCATE TABLE Measures")
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
+        with open("cnf-fcen-csv/MEASURE NAME.csv", "r", encoding="ISO-8859-1") as fobj:
+            csvreader = csv.reader(fobj)
+            next(csvreader) #skip header row
 
-        for row in csvreader:
-            measure_id = int(row[0].strip()) if row[0].strip() else None
-            # if len(row[0])>0:
-                #food_group_id =row[0].strip()
-            #else:
-                #food_group_id =None
-            measure_description = row[1].strip() 
-            measure_description_f = row[2].strip()
+            for row in csvreader:
+                measure_id = int(row[0].strip()) if row[0].strip() else None
+                # if len(row[0])>0:
+                    #food_group_id =row[0].strip()
+                #else:
+                    #food_group_id =None
+                measure_description = row[1].strip() 
+                measure_description_f = row[2].strip()
 
 
-            sql ="""
-            INSERT INTO Measures
-            (MeasureID, MeasureDescription, MeasureDescriptionF)
-            VALUES (%s, %s, %s)
-            """
+                sql ="""
+                INSERT INTO Measures
+                (MeasureID, MeasureDescription, MeasureDescriptionF)
+                VALUES (%s, %s, %s)
+                """
 
-            values = (
-                measure_id,
-                measure_description,
-                measure_description_f
-            )
+                values = (
+                    measure_id,
+                    measure_description,
+                    measure_description_f
+                )
 
-            cursor.execute(sql, values)
+                cursor.execute(sql, values)
 
-    db_config.commit()
-    print("Measure data inserted successfully")
+            db_config.commit()
+            print("Measure data inserted successfully")
+
+    except Exception as e:
+        print(f"Error: {e}")
+        db_config.rollback()
 
 # insert_measure_name()
 
@@ -277,4 +286,151 @@ def insert_conversion():
         print(f"Fatal error: {e}")
         db_config.rollback()
 # insert_conversion()
+
+def insert_nutrients_name():
+    with open ("cnf-fcen-csv/NUTRIENT NAME.csv", "r", encoding="ISO-8859-1") as fobj:
+        csvread= csv.reader(fobj)
+        next(csvread)
+
+        for row in csvread:
+            nutrient_id = int(row[0].strip()) if row[0].strip() else None
+            nutrient_code = int(row[1].strip()) if row[1].strip() else None
+            nutrient_symbol = row[2].strip()
+            nutrient_nunit = row[3].strip()
+            nutrient_name = row[4].strip()
+            nutrient_name_f = row[5].strip()
+            tag_name = row[6].strip()
+            nutrient_decimal = row[7].strip()
+
+            sql ="""
+            INSERT INTO Nutrients (
+            NutrientID, NutrientCode, NutrientSymbol, NutrientUnit, NutrientName, NutrientNameF, Tagname, NutrientDecimals
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """
+
+            values = (
+                nutrient_id,
+                nutrient_code,
+                nutrient_symbol,
+                nutrient_nunit,
+                nutrient_name,
+                nutrient_name_f,
+                tag_name,
+                nutrient_decimal
+            )
+
+            cursor.execute(sql, values)
+
+    db_config.commit()
+    print("Nutrients data inserted successfully")
+
+# insert_nutrients_name()
+
+def insert_nutrients_sources():
+    with open ("cnf-fcen-csv/NUTRIENT SOURCE.csv", "r", encoding="ISO-8859-1") as fobj:
+        csvread= csv.reader(fobj)
+        next(csvread)
+
+        for row in csvread:
+            nutrient_source_id = int(row[0].strip()) if row[0].strip() else None
+            nutrient_source_code = int(row[1].strip()) if row[1].strip() else None
+            nutrient_source_desc = row[2].strip()
+            nutrient_source_desc_f = row[3].strip()
+
+            sql ="""
+            INSERT INTO NutrientSources (
+            NutrientSourceID, NutrientSourceCode, NutrientSourceDescription, NutrientSourceDescriptionF
+            )
+            VALUES (%s, %s, %s, %s)
+            """
+
+            values = (
+                nutrient_source_id ,
+                nutrient_source_code,
+                nutrient_source_desc,
+                nutrient_source_desc_f
+            )
+
+            cursor.execute(sql, values)
+
+        db_config.commit()
+        print("NutrientsSources inserted successfully")
+
+# insert_nutrients_sources()
+
+
+def insert_nutrients_amount():
+    try:
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
+        cursor.execute("TRUNCATE TABLE NutrientAmount")
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
+
+        with open ("cnf-fcen-csv/NUTRIENT AMOUNT.csv", "r", encoding="ISO-8859-1") as fobj:
+            csvread= csv.reader(fobj)
+            next(csvread)
+
+            for row in csvread:
+                food_id = int(row[0].strip()) if row[0].strip() else None
+                nutrient_id = int(row[1].strip()) if row[1].strip() else None
+                nutrient_value = row[2].strip()
+                standard_error = int(row[3].strip()) if row[3].strip() else None
+                num_observation = int(row[4].strip()) if row[4].strip() else None
+                nutrient_source_id = int(row[5].strip()) if row[5].strip() else None
+
+                try:
+                    entry_date = datetime.strptime(row[6].strip(), "%Y-%m-%d").date()
+                except (ValueError, AttributeError):
+                    print(f"Skipping row (invalid date): {row}")
+                    error_count += 1
+                    continue
+
+                # Validate foreign keys
+                cursor.execute("SELECT FoodID FROM Foods WHERE FoodID = %s", (food_id,))
+                if not cursor.fetchone():
+                    print(f"Skipping row (invalid FoodID {food_id}): {row}")
+                    error_count += 1
+                    continue
+
+                cursor.execute("SELECT NutrientID FROM Nutrients WHERE NutrientID = %s", (nutrient_id,))
+                if not cursor.fetchone():
+                    print(f"Skipping row (invalid NutrientID {nutrient_id}): {row}")
+                    error_count += 1
+                    continue
+
+                cursor.execute("SELECT NutrientSourceID FROM NutrientSources WHERE NutrientSourceID = %s", (nutrient_source_id,))
+                if not cursor.fetchone():
+                    print(f"Skipping row (invalid NutrientSourceID {nutrient_source_id}): {row}")
+                    error_count += 1
+                    continue
+                
+
+                sql ="""
+                INSERT INTO NutrientAmounts (FoodID, NutrientID, NutrientValue, StandardError, NumberOfObservations, NutrientSourceID, NutrientDateOfEntry
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """
+
+                values = (
+                    food_id,
+                    nutrient_id,
+                    nutrient_value,
+                    standard_error,
+                    num_observation,
+                    nutrient_source_id,
+                    entry_date
+                )
+
+                cursor.execute(sql, values)
+
+            db_config.commit()
+            print("NutrientsAmount data inserted successfully")
+    except Exception as e:
+        print(f"Fatal error: {e}")
+        db_config.rollback()
+
+insert_nutrients_amount()
+
+
+
 
