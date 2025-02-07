@@ -4,10 +4,11 @@ A project that generates personalized one day meal plan based on users' previous
 # Database-> MySQL-> Nutritions DB
 1. Nutrition Amount for each ingredients/foods✅
 - CNF Data/USDA https://www.canada.ca/en/health-canada/services/food-nutrition/healthy-eating/nutrient-data/canadian-nutrient-file-compilation-canadian-food-composition-data-database-structure.html 
- - Food Name.csv (FoodID, FoodSourceID)
- - Measure Name.csv(MeasureID)
+ - Food Name.csv (FoodID, FoodSourceID)✅🚨
+ - Food Group.csv✅
+ - Measure Name.csv(MeasureID)✅🚨
  - Conversion Factor.csv (MeasureID & Food ID)
- - Food Source.csv
+ - Food Source.csv✅
  - Nutrient Name.csv(NutrientsID)
  - Nutrient Amount.csv
  - Nutrient Source.csv
