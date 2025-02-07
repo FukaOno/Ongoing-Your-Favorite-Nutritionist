@@ -166,6 +166,97 @@ def insert_foods():
         print(f"Error: {e}")
         db_config.rollback()
 
-insert_foods()
+# insert_foods()
 
 #need to fix since there are many data that could not moved
+
+def insert_measure_name():
+    with open("cnf-fcen-csv/MEASURE NAME.csv", "r", encoding="ISO-8859-1") as fobj:
+        csvreader = csv.reader(fobj)
+        next(csvreader) #skip header row
+
+        for row in csvreader:
+            measure_id = int(row[0].strip()) if row[0].strip() else None
+            # if len(row[0])>0:
+                #food_group_id =row[0].strip()
+            #else:
+                #food_group_id =None
+            measure_description = row[1].strip() 
+            measure_description_f = row[2].strip()
+
+
+            sql ="""
+            INSERT INTO Measures
+            (MeasureID, MeasureDescription, MeasureDescriptionF)
+            VALUES (%s, %s, %s)
+            """
+
+            values = (
+                measure_id,
+                measure_description,
+                measure_description_f
+            )
+
+            cursor.execute(sql, values)
+
+    db_config.commit()
+    print("Measure data inserted successfully")
+
+# insert_measure_name()
+
+#need to fix since there are many data that could not moved
+
+def insert_conversion():
+    try:
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")  # Disable checks
+        cursor.execute("TRUNCATE TABLE ConversionFactors")  #Delete the existing vdata in the table
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")  
+        try:
+            with open("cnf-fcen-csv/CONVERSION FACTOR.csv", "r", encoding="ISO-8859-1") as fobj:
+                csvreader = csv.reader(fobj)
+                next(csvreader) #skip header row
+
+                for row in csvreader:
+                    food_id = int(row[0].strip()) if row[0].strip() else None
+                    # if len(row[0])>0:
+                        #food_group_id =row[0].strip()
+                    #else:
+                        #food_group_id =None
+                    measure_id = int(row[1].strip()) if row[1].strip() else None
+                    conversion_factor_value = row[2].strip()
+                    conversion_factor_date_of_entry = datetime.strptime(row[3].strip(), "%Y-%m-%d").date()
+
+                    #Foreign Key
+                    cursor.execute("SELECT FoodGroupID FROM FoodGroups WHERE FoodGroupID = %s", (food_group_id,))
+                        if not cursor.fetchone():
+                            print(f"Skipping row {row_count}: Invalid FoodGroupID {food_group_id}")
+                            continue
+
+                    sql ="""
+                    INSERT INTO ConversionFactors
+                    (FoodID, MeasureID, ConversionFactorValue, ConvFactorDateOfEntry)
+                    VALUES (%s, %s, %s, %s)
+                    """
+
+                    values = (
+                        food_id,
+                        measure_id,
+                        conversion_factor_value,
+                        conversion_factor_date_of_entry
+                    )
+
+                    cursor.execute(sql, values)
+                    print("Conversion data inserted successfully")
+
+        except Exception as e:
+            print(f"Fatal error: {e}")
+            db_config.rollback()
+
+    except Exception as e:
+        print(f"Error: {e}")
+        db_config.rollback()
+            db_config.commit()
+
+insert_conversion()
+
+#Fix the foreign key issue
