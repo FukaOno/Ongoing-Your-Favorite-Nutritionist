@@ -208,55 +208,73 @@ def insert_measure_name():
 
 def insert_conversion():
     try:
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")  # Disable checks
-        cursor.execute("TRUNCATE TABLE ConversionFactors")  #Delete the existing vdata in the table
-        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")  
-        try:
-            with open("cnf-fcen-csv/CONVERSION FACTOR.csv", "r", encoding="ISO-8859-1") as fobj:
-                csvreader = csv.reader(fobj)
-                next(csvreader) #skip header row
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
+        cursor.execute("TRUNCATE TABLE ConversionFactors")
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
 
-                for row in csvreader:
+        with open("cnf-fcen-csv/CONVERSION FACTOR.csv", "r", encoding="ISO-8859-1") as fobj:
+            csvreader = csv.reader(fobj)
+            next(csvreader)  # Skip header
+
+            success_count = 0
+            error_count = 0
+
+            for row in csvreader:
+                try:
+                    # Pad missing columns
+                    row += [''] * (4 - len(row))
+
+                    # Parse data
                     food_id = int(row[0].strip()) if row[0].strip() else None
-                    # if len(row[0])>0:
-                        #food_group_id =row[0].strip()
-                    #else:
-                        #food_group_id =None
                     measure_id = int(row[1].strip()) if row[1].strip() else None
-                    conversion_factor_value = row[2].strip()
-                    conversion_factor_date_of_entry = datetime.strptime(row[3].strip(), "%Y-%m-%d").date()
+                    conversion_factor_value = float(row[2].strip()) if row[2].strip() else None  # Convert to float
 
-                    #Foreign Key
-                    cursor.execute("SELECT FoodGroupID FROM FoodGroups WHERE FoodGroupID = %s", (food_group_id,))
-                        if not cursor.fetchone():
-                            print(f"Skipping row {row_count}: Invalid FoodGroupID {food_group_id}")
-                            continue
+                    # Handle date (skip if invalid)
+                    try:
+                        conversion_date = datetime.strptime(row[3].strip(), "%Y-%m-%d").date()
+                    except (ValueError, AttributeError):
+                        print(f"Skipping row (invalid date): {row}")
+                        error_count += 1
+                        continue
 
-                    sql ="""
-                    INSERT INTO ConversionFactors
+                    # Validate foreign keys
+                    cursor.execute("SELECT FoodID FROM Foods WHERE FoodID = %s", (food_id,))
+                    if not cursor.fetchone():
+                        print(f"Skipping row (invalid FoodID {food_id}): {row}")
+                        error_count += 1
+                        continue
+
+                    cursor.execute("SELECT MeasureID FROM Measures WHERE MeasureID = %s", (measure_id,))
+                    if not cursor.fetchone():
+                        print(f"Skipping row (invalid MeasureID {measure_id}): {row}")
+                        error_count += 1
+                        continue
+
+                    # Insert into ConversionFactors
+                    sql = """
+                    INSERT INTO ConversionFactors 
                     (FoodID, MeasureID, ConversionFactorValue, ConvFactorDateOfEntry)
                     VALUES (%s, %s, %s, %s)
                     """
-
                     values = (
                         food_id,
                         measure_id,
                         conversion_factor_value,
-                        conversion_factor_date_of_entry
+                        conversion_date
                     )
-
                     cursor.execute(sql, values)
-                    print("Conversion data inserted successfully")
+                    success_count += 1
 
-        except Exception as e:
-            print(f"Fatal error: {e}")
-            db_config.rollback()
+                except Exception as e:
+                    print(f"Error in row {row}: {e}")
+                    error_count += 1
+                    continue
+
+            db_config.commit()
+            print(f"Inserted {success_count} rows. Errors: {error_count}")
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Fatal error: {e}")
         db_config.rollback()
-            db_config.commit()
+# insert_conversion()
 
-insert_conversion()
-
-#Fix the foreign key issue
