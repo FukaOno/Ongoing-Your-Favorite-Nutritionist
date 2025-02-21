@@ -363,74 +363,84 @@ def insert_nutrients_sources():
 def insert_nutrients_amount():
     try:
         cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
-        cursor.execute("TRUNCATE TABLE NutrientAmount")
+        cursor.execute("TRUNCATE TABLE NutrientAmounts")  # Corrected name
         cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
 
-        with open ("cnf-fcen-csv/NUTRIENT AMOUNT.csv", "r", encoding="ISO-8859-1") as fobj:
-            csvread= csv.reader(fobj)
-            next(csvread)
+        with open("cnf-fcen-csv/NUTRIENT AMOUNT.csv", "r", encoding="ISO-8859-1") as fobj:
+            csvread = csv.reader(fobj)
+            next(csvread)  # Skip header
+
+            error_count = 0
+            success_count = 0
 
             for row in csvread:
-                food_id = int(row[0].strip()) if row[0].strip() else None
-                nutrient_id = int(row[1].strip()) if row[1].strip() else None
-                nutrient_value = row[2].strip()
-                standard_error = int(row[3].strip()) if row[3].strip() else None
-                num_observation = int(row[4].strip()) if row[4].strip() else None
-                nutrient_source_id = int(row[5].strip()) if row[5].strip() else None
-
                 try:
-                    entry_date = datetime.strptime(row[6].strip(), "%Y-%m-%d").date()
-                except (ValueError, AttributeError):
-                    print(f"Skipping row (invalid date): {row}")
+                    # Pad missing columns
+                    row += [''] * (7 - len(row))
+
+                    # Parse data
+                    food_id = int(row[0].strip()) if row[0].strip() else None
+                    nutrient_id = int(row[1].strip()) if row[1].strip() else None
+                    nutrient_value = float(row[2].strip()) if row[2].strip() else None  # Convert to float
+                    standard_error = float(row[3].strip()) if row[3].strip() else None
+                    num_observation = int(row[4].strip()) if row[4].strip() else None
+                    nutrient_source_id = int(row[5].strip()) if row[5].strip() else None
+
+                    # Handle date
+                    try:
+                        entry_date = datetime.strptime(row[6].strip(), "%Y-%m-%d").date()
+                    except (ValueError, AttributeError):
+                        print(f"Skipping row (invalid date): {row}")
+                        error_count += 1
+                        continue
+
+                    # Validate foreign keys
+                    cursor.execute("SELECT FoodID FROM Foods WHERE FoodID = %s", (food_id,))
+                    if not cursor.fetchone():
+                        print(f"Skipping row (invalid FoodID {food_id}): {row}")
+                        error_count += 1
+                        continue
+
+                    cursor.execute("SELECT NutrientID FROM Nutrients WHERE NutrientID = %s", (nutrient_id,))
+                    if not cursor.fetchone():
+                        print(f"Skipping row (invalid NutrientID {nutrient_id}): {row}")
+                        error_count += 1
+                        continue
+
+                    cursor.execute("SELECT NutrientSourceID FROM NutrientSources WHERE NutrientSourceID = %s", (nutrient_source_id,))
+                    if not cursor.fetchone():
+                        print(f"Skipping row (invalid NutrientSourceID {nutrient_source_id}): {row}")
+                        error_count += 1
+                        continue
+
+                    # Insert into NutrientAmounts
+                    sql = """
+                    INSERT INTO NutrientAmounts 
+                    (FoodID, NutrientID, NutrientValue, StandardError, NumberOfObservations, NutrientSourceID, NutrientDateOfEntry)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    """
+                    values = (
+                        food_id,
+                        nutrient_id,
+                        nutrient_value,
+                        standard_error,
+                        num_observation,
+                        nutrient_source_id,
+                        entry_date
+                    )
+                    cursor.execute(sql, values)
+                    success_count += 1
+
+                except Exception as e:
+                    print(f"Error in row: {e}")
                     error_count += 1
                     continue
-
-                # Validate foreign keys
-                cursor.execute("SELECT FoodID FROM Foods WHERE FoodID = %s", (food_id,))
-                if not cursor.fetchone():
-                    print(f"Skipping row (invalid FoodID {food_id}): {row}")
-                    error_count += 1
-                    continue
-
-                cursor.execute("SELECT NutrientID FROM Nutrients WHERE NutrientID = %s", (nutrient_id,))
-                if not cursor.fetchone():
-                    print(f"Skipping row (invalid NutrientID {nutrient_id}): {row}")
-                    error_count += 1
-                    continue
-
-                cursor.execute("SELECT NutrientSourceID FROM NutrientSources WHERE NutrientSourceID = %s", (nutrient_source_id,))
-                if not cursor.fetchone():
-                    print(f"Skipping row (invalid NutrientSourceID {nutrient_source_id}): {row}")
-                    error_count += 1
-                    continue
-                
-
-                sql ="""
-                INSERT INTO NutrientAmounts (FoodID, NutrientID, NutrientValue, StandardError, NumberOfObservations, NutrientSourceID, NutrientDateOfEntry
-                )
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """
-
-                values = (
-                    food_id,
-                    nutrient_id,
-                    nutrient_value,
-                    standard_error,
-                    num_observation,
-                    nutrient_source_id,
-                    entry_date
-                )
-
-                cursor.execute(sql, values)
 
             db_config.commit()
-            print("NutrientsAmount data inserted successfully")
+            print(f"Inserted {success_count} rows. Errors: {error_count}")
+
     except Exception as e:
         print(f"Fatal error: {e}")
         db_config.rollback()
 
 insert_nutrients_amount()
-
-
-
-
