@@ -4,16 +4,16 @@ A project that generates personalized one day meal plan based on users' previous
 # Database-> MySQL-> Nutritions DB
 1. Nutrition Amount for each ingredients/foods✅
 - CNF Data/USDA https://www.canada.ca/en/health-canada/services/food-nutrition/healthy-eating/nutrient-data/canadian-nutrient-file-compilation-canadian-food-composition-data-database-structure.html 
+- Parse with Python in MySQL✅
  - Food Name.csv (FoodID, FoodSourceID)✅🚨
  - Food Group.csv✅
  - Measure Name.csv(MeasureID)✅🚨
- - Conversion Factor.csv (MeasureID & Food ID)
+ - Conversion Factor.csv (MeasureID & Food ID)✅🚨
  - Food Source.csv✅
- - Nutrient Name.csv(NutrientsID)
- - Nutrient Amount.csv
- - Nutrient Source.csv
+ - Nutrient Name.csv(NutrientsID)✅
+ - Nutrient Amount.csv✅🚨
+ - Nutrient Sources.csv✅
 
-- Parse with Python in MySQL
 
 - Turn into an endpoint (able to query through HTTP) by parse with python-> store in DB(connect MySQL)
 
