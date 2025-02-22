@@ -15,7 +15,8 @@ A project that generates personalized one day meal plan based on users' previous
  - Nutrient Sources.csv✅
 
 
-- Turn into an endpoint (able to query through HTTP) by parse with python-> store in DB(connect MySQL)
+- Turn into an endpoint (able to query through HTTP) -> store in DB(connect MySQL)✅
+-> to be able to retrive data✅
 
 - generate meal plan templates 
    spoonacular API-> https://www.postman.com/spoonacular-api/spoonacular-api/request/m1148g0/search-recipes 
